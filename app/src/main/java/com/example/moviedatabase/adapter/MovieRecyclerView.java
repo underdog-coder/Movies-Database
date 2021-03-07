@@ -51,9 +51,13 @@ public class MovieRecyclerView extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     public void setmMovies(List<Movie> mMovies) {
-        this.mMovies = (mMovies);
-        notifyDataSetChanged();
-        Log.v("set movies" , "movie size : " + mMovies.toString());
+        if(mMovies != null){
+            this.mMovies = (mMovies);
+            notifyDataSetChanged();
+            Log.v("set movies", "movie size : " + mMovies.toString());
+        }
+
+
     }
 
     public void setOnMovieListener(OnMovieListener onMovieListener) {

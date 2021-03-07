@@ -1,7 +1,15 @@
 package com.example.moviedatabase;
 
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
@@ -10,6 +18,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import  androidx.appcompat.widget.SearchView;
@@ -45,8 +54,13 @@ public class HomePage extends AppCompatActivity  implements OnMovieListener, OnT
     private int waitingTime = 1000;
     private CountDownTimer cntr;
     private Intent intent;
+
+
+
     private boolean isSearch;
     private RecyclerView trendingMovies;
+    boolean isConnected = true;
+    ConnectivityManager connectivityManager;
     private RecyclerView nowPlayingMovies;
     private RecyclerView searchMovies;
     private TextView nowPlayingText;
@@ -56,6 +70,8 @@ public class HomePage extends AppCompatActivity  implements OnMovieListener, OnT
     //private MovieRecyclerView trendingMovieRecyclerViewAdapter;
     private TrendingMovieRecyclerView trendingMovieRecyclerViewAdapter;
 
+
+    //BroadcastReceiver broadcastReceiver;
    // private MovieRecyclerView searchMovieRecyclerViewAdapter;
 
     private MovieViewModel movieViewModel;
@@ -63,14 +79,25 @@ public class HomePage extends AppCompatActivity  implements OnMovieListener, OnT
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
+       // broadcastReceiver =  new NetworkChangeReceiver();
+        //registerNetworkBroadcastReceiver();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            registerReceiver(broadcastReceiver,new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+        }
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+            registerReceiver(broadcastReceiver,new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+        }
+
         setContentView(R.layout.home_page);
-
-
         trendingMovies = findViewById(R.id.trendingMovie);
         nowPlayingText = findViewById(R.id.nowPlayingMoviesText);
         trendingText =  findViewById(R.id.trendingMoviesText);
         nowPlayingMovies = findViewById(R.id.nowPlayingMovies);
 
+       // registerNetworkBroadcastReceiver();
         isSearch = false;
 
         movieViewModel = new ViewModelProvider(this).get(MovieViewModel.class);
@@ -85,6 +112,143 @@ public class HomePage extends AppCompatActivity  implements OnMovieListener, OnT
         searchTrendingMovieApi(1);
         searchNowPlayingMovieApi(1);
     }
+
+    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            try{
+                if(isOnline(context)){
+                    // intent = new Intent(HomePage.this,MovieDetails.class);
+                    Toast.makeText(context,"Network Connected !!",Toast.LENGTH_SHORT).show();
+                    nowPlayingText.setText("Now Playing Movies");
+                    trendingText.setVisibility(View.VISIBLE);
+                    searchTrendingMovieApi(1);
+                    searchNowPlayingMovieApi(1);
+                    trendingMovies.setVisibility(View.VISIBLE);
+                    nowPlayingMovies.setVisibility(View.VISIBLE);
+                }
+                else{
+                    nowPlayingText.setText("No Internet Connection :(");
+                    trendingMovies.setVisibility(View.GONE);
+                    nowPlayingMovies.setVisibility(View.GONE);
+                    trendingText.setVisibility(View.GONE);
+                    Toast.makeText(context,"Network Not Connected !!",Toast.LENGTH_SHORT).show();
+                }
+            }catch (NullPointerException e) {
+                e.printStackTrace();
+            }
+
+        }
+    };
+    public boolean isOnline(Context context){
+        try {
+
+            ConnectivityManager connectivityManager= (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                Network nw = connectivityManager.getActiveNetwork();
+                if (nw == null) return false;
+                NetworkCapabilities actNw = connectivityManager.getNetworkCapabilities(nw);
+                return actNw != null && (actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) || actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) || actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) || actNw.hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH));
+            } else {
+                NetworkInfo nwInfo = connectivityManager.getActiveNetworkInfo();
+                return nwInfo != null && nwInfo.isConnected();
+            }
+
+        }catch (NullPointerException e){
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
+
+    protected void registerNetworkBroadcastReceiver(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                registerReceiver(broadcastReceiver,new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+        }
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+            registerReceiver(broadcastReceiver,new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+        }
+    }
+
+    protected void unregisterNetworkBroadcastReceiver(){
+        try{
+            unregisterReceiver(broadcastReceiver);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterNetworkBroadcastReceiver();
+    }
+
+    /*  private void registerNetworkCallback(){
+        try{
+            connectivityManager = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+            connectivityManager.registerDefaultNetworkCallback(new ConnectivityManager.NetworkCallback(){
+                @Override
+                public void onAvailable(@NonNull Network network) {
+                    isConnected =  true;
+
+                }
+
+                @Override
+                public void onLost(@NonNull Network network) {
+                    isConnected =  false;
+
+                }
+            });
+        }catch (Exception e){
+            isConnected = false;
+        }
+
+    }*/
+/*
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerNetworkCallback();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unregisterNetworkCallback();
+    }
+*/
+
+
+/*    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterNetworkCallback();
+    }*/
+/*
+    private void unregisterNetworkCallback(){
+        connectivityManager.unregisterNetworkCallback(new ConnectivityManager.NetworkCallback());
+    }*/
+
+/*
+    private boolean isConnected(HomePage homePage){
+        ConnectivityManager connectivityManager = (ConnectivityManager) homePage.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+         NetworkInfo []
+
+
+        NetworkInfo  wifiConn = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        NetworkInfo  mobConn = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        if((wifiConn !=  null && wifiConn.isConnected()) || (mobConn !=  null && mobConn.isConnected())){
+            return true;
+        }else {
+            return  false;
+        }
+    }
+*/
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -148,12 +312,20 @@ public class HomePage extends AppCompatActivity  implements OnMovieListener, OnT
                     }
 
                     public void onFinish() {
-                        if(newText.isEmpty()){
+                        if(newText.isEmpty() && isOnline(HomePage.this)){
                             isSearch =  false;
                             nowPlayingText.setText("Now Playing Movies" );
                             searchNowPlayingMovieApi(1);
+                            searchTrendingMovieApi(1);
                             trendingText.setVisibility(View.VISIBLE);
                             trendingMovies.setVisibility(View.VISIBLE);
+                            return;
+                        }
+                        if(newText.isEmpty() && !isOnline(HomePage.this)){
+                            isSearch =  false;
+                            nowPlayingText.setText("No Internet Connection :(" );
+                            searchNowPlayingMovieApi(1);
+                            searchTrendingMovieApi(1);
                             return;
                         }
                         isSearch = true;
@@ -182,9 +354,9 @@ public class HomePage extends AppCompatActivity  implements OnMovieListener, OnT
                 if(!recyclerView.canScrollHorizontally(1)  && isSearch == false){
                     movieViewModel.searchNowPlayingMovieNextPageApi();
                 }
-                if(!recyclerView.canScrollHorizontally(1)  && isSearch == true){
+               /* if(!recyclerView.canScrollHorizontally(1)  && isSearch == true){
                     movieViewModel.searchMovieNextPageApi();
-                }
+                }*/
             }
         });
 

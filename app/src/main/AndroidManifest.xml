@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.moviedatabase">
 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -12,8 +13,18 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MovieDatabase">
-        <activity android:name=".MovieDetails"></activity>
-        <activity android:name=".FavouritePage"></activity>
+        <receiver
+            android:name=".NetworkChangeReceiver"
+            android:enabled="false"
+            android:exported="false">
+
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"> </action>
+            </intent-filter>
+        </receiver>
+
+        <activity android:name=".MovieDetails" />
+        <activity android:name=".FavouritePage" />
         <activity android:name=".HomePage">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
