@@ -15,8 +15,10 @@ On clicking on anymovie item, details about them are shown and a button to mark 
 ![Alt text](https://github.com/underdog-coder/Movies-Database/blob/master/Screenshot_20210308-011840_Movie%20Database.jpg "Image 1")
 
 
-![Alt text]( https://github.com/underdog-coder/Movies-Database/blob/master/Screenshot_20210308-011932_Movie%20Database.jpg "Image 2")
+![Alt text]( https://github.com/underdog-coder/Movies-Database/blob/master/Screenshot_20210308-011957_Movie%20Database.jpg "Image 2")
+
+![Alt text]( https://github.com/underdog-coder/Movies-Database/blob/master/Screenshot_20210308-011932_Movie%20Database.jpg "Image 3")
 
 
-![Alt text]( https://github.com/underdog-coder/Movies-Database/blob/master/Screenshot_20210308-011957_Movie%20Database.jpg "Image 3")
+
 
