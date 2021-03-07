@@ -1,6 +1,7 @@
 package com.example.moviedatabase.repositories;
 
 import android.app.Application;
+import android.content.Context;
 import android.os.AsyncTask;
 
 import androidx.lifecycle.LiveData;
@@ -23,45 +24,45 @@ public class MovieRepository {
     private String mQuery;
     private int mPageNumber;
     private MovieDao movieDao;
+
     private LiveData<List<Movie>> fav_movies;
 
-    public static MovieRepository getInstance(){
+    public static MovieRepository getInstance(Context context){
         if(instance == null){
-            instance = new MovieRepository();
+            instance = new MovieRepository(context);
         }
         return instance;
     }
 
-    private MovieRepository(Application application){
-        AppDatabase database =AppDatabase.getInstance(application);
-        movieDao = database.MovieDao();
-        //fav_movies = movieDao.getAllMovies();
-    }
-
-    public void insert (Movie movie){
-
-    }
-    public void update (Movie movie){
-
-    }
-
-    public void delete (Movie movie){
-
-    }
-
-    public LiveData<List<Movie>> getFav_movies() {
-        return fav_movies;
-    }
-
-
-
-
-
-    private MovieRepository(){
+    private MovieRepository(Context context){
+        movieDao = AppDatabase.getInstance(context).MovieDao();
         movieApiClient = MovieApiClient.getInstance();
     }
 
+    public void insert (Movie movie){
+            movieDao.insert(movie);
+    }
+    public void update (Movie movie){
+            movieDao.update(movie);
+    }
+
+    public void delete (Movie movie){
+            movieDao.delete(movie);
+    }
+
+    public boolean isFavourite(int movie_id){
+        return movieDao.isFavourite(movie_id);
+    }
+    public void deleteAllMovies(){
+        movieDao.deleteAllMovies();
+    }
+
+    public LiveData<List<Movie>> getFav_movies() {
+        return movieDao.getAllMovies();
+    }
+
     public LiveData<List<Movie>> getMovies(){
+
         return movieApiClient.getMovies();
     }
 
@@ -70,6 +71,9 @@ public class MovieRepository {
     }
     public  LiveData<List<Movie>> getTrendingMovies(){
         return movieApiClient.getTrendingMovies();
+    }
+    public void searchFavMovies(){
+        movieDao.getAllMovies();
     }
 
 
@@ -102,5 +106,6 @@ public class MovieRepository {
         movieApiClient.searchNowPlayingMovieApi(mPageNumber+1);
         mPageNumber +=1;
     }
+
 
 }

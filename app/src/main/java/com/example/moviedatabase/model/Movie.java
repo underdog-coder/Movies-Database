@@ -8,10 +8,10 @@ import androidx.room.PrimaryKey;
 
 import com.google.gson.annotations.SerializedName;
 
-@Entity(tableName = "favourite_table ")
+@Entity(tableName = "favourite_table")
 public class Movie implements Parcelable {
-    @PrimaryKey(autoGenerate = true)
-    private int key;
+   /* @PrimaryKey(autoGenerate = true)
+    private int key;*/
     @SerializedName("original_title")
     private String original_title;
     @SerializedName("overview")
@@ -22,9 +22,21 @@ public class Movie implements Parcelable {
     private String poster_path;
     @SerializedName("vote_average")
     private float vote_average;
-    @SerializedName("movie_id")
+    @SerializedName("total_pages")
+    private int total_pages;
+    @PrimaryKey
+    @SerializedName("id")
     private int movie_id;
 
+    public Movie(String original_title, String overview, String release_date, String poster_path, float vote_average, int total_pages, int movie_id) {
+        this.original_title = original_title;
+        this.overview = overview;
+        this.release_date = release_date;
+        this.poster_path = poster_path;
+        this.vote_average = vote_average;
+        this.total_pages = total_pages;
+        this.movie_id = movie_id;
+    }
 
     protected Movie(Parcel in) {
         original_title = in.readString();
@@ -33,17 +45,9 @@ public class Movie implements Parcelable {
         poster_path = in.readString();
         vote_average = in.readFloat();
         movie_id = in.readInt();
+        total_pages = in.readInt();
     }
 
-    public Movie(String original_title, String overview, String release_date, String poster_path, float vote_average, int movie_id) {
-       // this.key = key;
-        this.original_title = original_title;
-        this.overview = overview;
-        this.release_date = release_date;
-        this.poster_path = poster_path;
-        this.vote_average = vote_average;
-        this.movie_id = movie_id;
-    }
 
     public static final Creator<Movie> CREATOR = new Creator<Movie>() {
         @Override
@@ -57,13 +61,13 @@ public class Movie implements Parcelable {
         }
     };
 
-    public int getKey() {
+    /*public int getKey() {
         return key;
     }
 
     public void setKey(int key) {
         this.key = key;
-    }
+    }*/
 
     @Override
     public String toString() {
@@ -73,6 +77,7 @@ public class Movie implements Parcelable {
                 ", release_date='" + release_date + '\'' +
                 ", poster_path='" + poster_path + '\'' +
                 ", vote_average=" + vote_average +
+                ", total_pages=" + total_pages +
                 ", movie_id=" + movie_id +
                 '}';
     }
@@ -99,6 +104,14 @@ public class Movie implements Parcelable {
 
     public void setRelease_date(String release_date) {
         this.release_date = release_date;
+    }
+
+    public int getTotal_pages() {
+        return total_pages;
+    }
+
+    public void setTotal_pages(int total_pages) {
+        this.total_pages = total_pages;
     }
 
     public String getPoster_path() {
@@ -138,6 +151,7 @@ public class Movie implements Parcelable {
         dest.writeString(poster_path);
         dest.writeFloat(vote_average);
         dest.writeInt(movie_id);
+        dest.writeInt(total_pages);
     }
 }
 

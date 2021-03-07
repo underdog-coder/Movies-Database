@@ -24,9 +24,12 @@ public interface MovieDao {
     @Delete
     void delete(Movie movie);
 
-/*    @Query("DELETE FROM favourite_table")
+    @Query("DELETE  FROM favourite_table")
     void deleteAllMovies();
 
-    @Query(" Select * from favourite_table ")
-    LiveData<List<Movie>> getAllMovies();*/
+    @Query(" Select * from favourite_table")
+    LiveData<List<Movie>> getAllMovies();
+
+    @Query("Select count(*) from  favourite_table where movie_id = :movie_id")
+    boolean isFavourite(int movie_id);
 }

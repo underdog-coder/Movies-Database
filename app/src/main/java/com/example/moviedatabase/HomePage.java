@@ -17,6 +17,7 @@ import  androidx.appcompat.widget.SearchView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -24,6 +25,7 @@ import com.example.moviedatabase.adapter.MovieRecyclerView;
 import com.example.moviedatabase.adapter.OnMovieListener;
 import com.example.moviedatabase.adapter.OnTrendingListener;
 import com.example.moviedatabase.adapter.TrendingMovieRecyclerView;
+import com.example.moviedatabase.database.AppDatabase;
 import com.example.moviedatabase.model.Movie;
 import com.example.moviedatabase.requests.MovieApi;
 import com.example.moviedatabase.requests.Service;
@@ -68,6 +70,7 @@ public class HomePage extends AppCompatActivity  implements OnMovieListener, OnT
         nowPlayingText = findViewById(R.id.nowPlayingMoviesText);
         trendingText =  findViewById(R.id.trendingMoviesText);
         nowPlayingMovies = findViewById(R.id.nowPlayingMovies);
+
         isSearch = false;
 
         movieViewModel = new ViewModelProvider(this).get(MovieViewModel.class);
@@ -89,6 +92,16 @@ public class HomePage extends AppCompatActivity  implements OnMovieListener, OnT
         menuInflater.inflate(R.menu.main_menu,menu);
 
         MenuItem searchItem = menu.findItem(R.id.search_button);
+        MenuItem favourite_bttm = menu.findItem(R.id.favourite_button);
+
+        favourite_bttm.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Log.v("favourite button", "on click !!");
+                startActivity(new Intent(HomePage.this,FavouritePage.class));
+                return false;
+            }
+        });
 
      /*   searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
             @Override
@@ -269,7 +282,6 @@ public class HomePage extends AppCompatActivity  implements OnMovieListener, OnT
                 }
             }
         });
-
     }
     private void ObserveAnyChangeNowPlaying() {
 
@@ -314,18 +326,22 @@ public class HomePage extends AppCompatActivity  implements OnMovieListener, OnT
 
     @Override
     public void onMovieClick(int position) {
+        //movieViewModel.insert(nowPlayingMovieRecyclerViewAdapter.getSelectedMovie(position));
+        Log.v("rohit","movie id : " + nowPlayingMovieRecyclerViewAdapter.getSelectedMovie(position).getMovie_id());
             Intent intent =  new Intent(this,MovieDetails.class);
             intent.putExtra("movie",nowPlayingMovieRecyclerViewAdapter.getSelectedMovie(position));
             startActivity(intent);
-            Log.v("rohit","position: " + nowPlayingMovieRecyclerViewAdapter.getSelectedMovie(position));
+
     }
 
     @Override
     public void ontrendingMovieClick(int position) {
+      // movieViewModel.delete(nowPlayingMovieRecyclerViewAdapter.getSelectedMovie(position));
+        Log.v("rohit","movie id : " + trendingMovieRecyclerViewAdapter.getSelectedMovie(position).getMovie_id());
         Intent intent =  new Intent(this,MovieDetails.class);
         intent.putExtra("movie",trendingMovieRecyclerViewAdapter.getSelectedMovie(position));
         startActivity(intent);
 
-        Log.v("rohit","position: " + trendingMovieRecyclerViewAdapter.getSelectedMovie(position));
+
     }
 }
