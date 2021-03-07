@@ -13,15 +13,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MovieDatabase">
-        <receiver
-            android:name=".NetworkChangeReceiver"
-            android:enabled="false"
-            android:exported="false">
-
-            <intent-filter>
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"> </action>
-            </intent-filter>
-        </receiver>
 
         <activity android:name=".MovieDetails" />
         <activity android:name=".FavouritePage" />

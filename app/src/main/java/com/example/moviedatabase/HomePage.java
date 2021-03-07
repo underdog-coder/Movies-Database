@@ -21,7 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import  androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.SearchView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
@@ -49,62 +49,54 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class HomePage extends AppCompatActivity  implements OnMovieListener, OnTrendingListener {
 
-    private int waitingTime = 1000;
+/*  This is the Home page of the App in this Activity, We are using two recycler views to populate trending and Now Playing movies
+
+ *   On the top right corner  Option for search is provided and for getting all the favourite movies also.
+ * */
+public class HomePage extends AppCompatActivity implements OnMovieListener, OnTrendingListener {
+
+    private int waitingTime = 1000; // min time before text in search view will get searched with the API
     private CountDownTimer cntr;
-    private Intent intent;
 
+    private boolean isSearch; // If search view is open
+    private RecyclerView trendingMovies; // Recycler view to hold trending movies
+    private RecyclerView nowPlayingMovies; // Recycler view to hold now Playing movies
 
-
-    private boolean isSearch;
-    private RecyclerView trendingMovies;
-    boolean isConnected = true;
-    ConnectivityManager connectivityManager;
-    private RecyclerView nowPlayingMovies;
-    private RecyclerView searchMovies;
     private TextView nowPlayingText;
     private TextView trendingText;
 
-    private MovieRecyclerView nowPlayingMovieRecyclerViewAdapter;
-    //private MovieRecyclerView trendingMovieRecyclerViewAdapter;
-    private TrendingMovieRecyclerView trendingMovieRecyclerViewAdapter;
+    private MovieRecyclerView nowPlayingMovieRecyclerViewAdapter;    // adapter for recycler view
+
+    private TrendingMovieRecyclerView trendingMovieRecyclerViewAdapter;   // adapter for recycler view
 
 
-    //BroadcastReceiver broadcastReceiver;
-   // private MovieRecyclerView searchMovieRecyclerViewAdapter;
-
-    private MovieViewModel movieViewModel;
+    private MovieViewModel movieViewModel;   //View model implemntation
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
-       // broadcastReceiver =  new NetworkChangeReceiver();
-        //registerNetworkBroadcastReceiver();
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            registerReceiver(broadcastReceiver,new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {          //registering broadcast receiver
+            registerReceiver(broadcastReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));    //checking for internet
         }
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-            registerReceiver(broadcastReceiver,new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {        //registering broadcast receiver
+            registerReceiver(broadcastReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)); //checking for internet
         }
 
         setContentView(R.layout.home_page);
         trendingMovies = findViewById(R.id.trendingMovie);
         nowPlayingText = findViewById(R.id.nowPlayingMoviesText);
-        trendingText =  findViewById(R.id.trendingMoviesText);
+        trendingText = findViewById(R.id.trendingMoviesText);
         nowPlayingMovies = findViewById(R.id.nowPlayingMovies);
 
-       // registerNetworkBroadcastReceiver();
         isSearch = false;
 
         movieViewModel = new ViewModelProvider(this).get(MovieViewModel.class);
 
         ConfigureRecyclerView();
         trendingRecyclerView();
-        //ConfigureSearchRecyclerView();
+
         ObserveAnyChange();
         ObserveAnyChangeNowPlaying();
         ObserveAnyChangeTrending();
@@ -113,37 +105,37 @@ public class HomePage extends AppCompatActivity  implements OnMovieListener, OnT
         searchNowPlayingMovieApi(1);
     }
 
-    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {       // Broadcast receiver to check internet connectivity
         @Override
         public void onReceive(Context context, Intent intent) {
-            try{
-                if(isOnline(context)){
-                    // intent = new Intent(HomePage.this,MovieDetails.class);
-                    Toast.makeText(context,"Network Connected !!",Toast.LENGTH_SHORT).show();
+            try {
+                if (isOnline(context)) {             // when connectivity is there
+
+                    Toast.makeText(context, "Network Connected !!", Toast.LENGTH_SHORT).show();
                     nowPlayingText.setText("Now Playing Movies");
                     trendingText.setVisibility(View.VISIBLE);
                     searchTrendingMovieApi(1);
                     searchNowPlayingMovieApi(1);
                     trendingMovies.setVisibility(View.VISIBLE);
                     nowPlayingMovies.setVisibility(View.VISIBLE);
-                }
-                else{
-                    nowPlayingText.setText("No Internet Connection :(");
+                } else {
+                    nowPlayingText.setText("No Internet Connection :(");  // when no internet connection
                     trendingMovies.setVisibility(View.GONE);
                     nowPlayingMovies.setVisibility(View.GONE);
                     trendingText.setVisibility(View.GONE);
-                    Toast.makeText(context,"Network Not Connected !!",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Network Not Connected !!", Toast.LENGTH_SHORT).show();
                 }
-            }catch (NullPointerException e) {
+            } catch (NullPointerException e) {
                 e.printStackTrace();
             }
 
         }
     };
-    public boolean isOnline(Context context){
+
+    public boolean isOnline(Context context) {     // method to check for connectivity
         try {
 
-            ConnectivityManager connectivityManager= (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 Network nw = connectivityManager.getActiveNetwork();
                 if (nw == null) return false;
@@ -154,7 +146,7 @@ public class HomePage extends AppCompatActivity  implements OnMovieListener, OnT
                 return nwInfo != null && nwInfo.isConnected();
             }
 
-        }catch (NullPointerException e){
+        } catch (NullPointerException e) {
             e.printStackTrace();
             return false;
         }
@@ -162,135 +154,47 @@ public class HomePage extends AppCompatActivity  implements OnMovieListener, OnT
 
 
 
-    protected void registerNetworkBroadcastReceiver(){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                registerReceiver(broadcastReceiver,new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-        }
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-            registerReceiver(broadcastReceiver,new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-        }
-    }
-
-    protected void unregisterNetworkBroadcastReceiver(){
-        try{
+    protected void unregisterNetworkBroadcastReceiver() {   // unregistering broadcast receiver
+        try {
             unregisterReceiver(broadcastReceiver);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     @Override
-    protected void onDestroy() {
+    protected void onDestroy() {      // unregistering broadcast receiver
         super.onDestroy();
         unregisterNetworkBroadcastReceiver();
     }
 
-    /*  private void registerNetworkCallback(){
-        try{
-            connectivityManager = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-            connectivityManager.registerDefaultNetworkCallback(new ConnectivityManager.NetworkCallback(){
-                @Override
-                public void onAvailable(@NonNull Network network) {
-                    isConnected =  true;
-
-                }
-
-                @Override
-                public void onLost(@NonNull Network network) {
-                    isConnected =  false;
-
-                }
-            });
-        }catch (Exception e){
-            isConnected = false;
-        }
-
-    }*/
-/*
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        registerNetworkCallback();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        unregisterNetworkCallback();
-    }
-*/
-
-
-/*    @Override
-    protected void onPause() {
-        super.onPause();
-        unregisterNetworkCallback();
-    }*/
-/*
-    private void unregisterNetworkCallback(){
-        connectivityManager.unregisterNetworkCallback(new ConnectivityManager.NetworkCallback());
-    }*/
-
-/*
-    private boolean isConnected(HomePage homePage){
-        ConnectivityManager connectivityManager = (ConnectivityManager) homePage.getSystemService(Context.CONNECTIVITY_SERVICE);
-
-         NetworkInfo []
-
-
-        NetworkInfo  wifiConn = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        NetworkInfo  mobConn = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-        if((wifiConn !=  null && wifiConn.isConnected()) || (mobConn !=  null && mobConn.isConnected())){
-            return true;
-        }else {
-            return  false;
-        }
-    }
-*/
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater menuInflater =  getMenuInflater();
-        menuInflater.inflate(R.menu.main_menu,menu);
+    public boolean onCreateOptionsMenu(Menu menu) {           // creating search and favourite button
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.main_menu, menu);
 
         MenuItem searchItem = menu.findItem(R.id.search_button);
         MenuItem favourite_bttm = menu.findItem(R.id.favourite_button);
 
-        favourite_bttm.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+        favourite_bttm.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {      // clicking favourite button to start new activity
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 Log.v("favourite button", "on click !!");
-                startActivity(new Intent(HomePage.this,FavouritePage.class));
+                startActivity(new Intent(HomePage.this, FavouritePage.class));
                 return false;
             }
         });
 
-     /*   searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
-            @Override
-            public boolean onMenuItemActionExpand(MenuItem item) {
 
-                return false;
-            }
-
-            @Override
-            public boolean onMenuItemActionCollapse(MenuItem item) {
-                isSearch =  false;
-                trendingText.setVisibility(View.VISIBLE);
-                trendingMovies.setVisibility(View.VISIBLE);
-                return false;
-            }
-        });*/
-
-        SearchView searchView = (SearchView)searchItem.getActionView();
+        SearchView searchView = (SearchView) searchItem.getActionView();    //search view
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
-            public boolean onQueryTextSubmit(String query) {
-                //ConfigureSearchRecyclerView();
+            public boolean onQueryTextSubmit(String query) {             // when query is submitted
+
                 isSearch = true;
-                searchMovieApi(query,1);
+                searchMovieApi(query, 1);
                 nowPlayingText.setText("Search Results : " + query);
                 trendingText.setVisibility(View.GONE);
                 trendingMovies.setVisibility(View.GONE);
@@ -298,42 +202,42 @@ public class HomePage extends AppCompatActivity  implements OnMovieListener, OnT
             }
 
             @Override
-            public boolean onQueryTextChange(String newText) {
+            public boolean onQueryTextChange(String newText) {            // when query is typed and is searched for automatically
 
                 waitingTime = (isSearch == true && newText.isEmpty()) ? 100 : 1000;
 
-                if(cntr != null){
+                if (cntr != null) {
                     cntr.cancel();
                 }
                 cntr = new CountDownTimer(waitingTime, 500) {
 
                     public void onTick(long millisUntilFinished) {
-                        Log.d("TIME","seconds remaining: " + millisUntilFinished / 1000);
+                        Log.d("TIME", "seconds remaining: " + millisUntilFinished / 1000);
                     }
 
                     public void onFinish() {
-                        if(newText.isEmpty() && isOnline(HomePage.this)){
-                            isSearch =  false;
-                            nowPlayingText.setText("Now Playing Movies" );
+                        if (newText.isEmpty() && isOnline(HomePage.this)) {
+                            isSearch = false;
+                            nowPlayingText.setText("Now Playing Movies");
                             searchNowPlayingMovieApi(1);
                             searchTrendingMovieApi(1);
                             trendingText.setVisibility(View.VISIBLE);
                             trendingMovies.setVisibility(View.VISIBLE);
                             return;
                         }
-                        if(newText.isEmpty() && !isOnline(HomePage.this)){
-                            isSearch =  false;
-                            nowPlayingText.setText("No Internet Connection :(" );
+                        if (newText.isEmpty() && !isOnline(HomePage.this)) {
+                            isSearch = false;
+                            nowPlayingText.setText("No Internet Connection :(");
                             searchNowPlayingMovieApi(1);
                             searchTrendingMovieApi(1);
                             return;
                         }
                         isSearch = true;
-                        searchMovieApi(newText,1);
+                        searchMovieApi(newText, 1);
                         nowPlayingText.setText("Search Results : " + newText);
                         trendingText.setVisibility(View.GONE);
                         trendingMovies.setVisibility(View.GONE);
-                        Log.d("FINISHED","DONE");
+                        Log.d("FINISHED", "DONE");
                     }
                 };
                 cntr.start();
@@ -344,48 +248,31 @@ public class HomePage extends AppCompatActivity  implements OnMovieListener, OnT
         return super.onCreateOptionsMenu(menu);
     }
 
-    private  void ConfigureRecyclerView(){
-        nowPlayingMovieRecyclerViewAdapter =  new MovieRecyclerView(this);
-        nowPlayingMovies.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
+    private void ConfigureRecyclerView() {      //configuring recycler view for now playing movies
+        nowPlayingMovieRecyclerViewAdapter = new MovieRecyclerView(this);
+        nowPlayingMovies.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         nowPlayingMovies.setAdapter(nowPlayingMovieRecyclerViewAdapter);
         nowPlayingMovies.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                if(!recyclerView.canScrollHorizontally(1)  && isSearch == false){
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {    //pagination implemented
+                if (!recyclerView.canScrollHorizontally(1) && isSearch == false) {
                     movieViewModel.searchNowPlayingMovieNextPageApi();
                 }
-               /* if(!recyclerView.canScrollHorizontally(1)  && isSearch == true){
-                    movieViewModel.searchMovieNextPageApi();
-                }*/
+
             }
         });
 
-/*
-
-        trendingMovieRecyclerViewAdapter =  new MovieRecyclerView(this);
-        trendingMovies.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
-        trendingMovies.setAdapter(trendingMovieRecyclerViewAdapter);
-        trendingMovies.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                if(!recyclerView.canScrollHorizontally(1)){
-                    movieViewModel.searchTrendingMovieNextPageApi();
-                }
-            }
-        });
-
-*/
 
     }
 
-    private void trendingRecyclerView(){
-        trendingMovieRecyclerViewAdapter =  new TrendingMovieRecyclerView(this);
-        trendingMovies.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
+    private void trendingRecyclerView() {      //configuring recycler view for trending movies
+        trendingMovieRecyclerViewAdapter = new TrendingMovieRecyclerView(this);
+        trendingMovies.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         trendingMovies.setAdapter(trendingMovieRecyclerViewAdapter);
         trendingMovies.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                if(!recyclerView.canScrollHorizontally(1)){
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {     //pagination implemented
+                if (!recyclerView.canScrollHorizontally(1)) {
                     movieViewModel.searchTrendingMovieNextPageApi();
                 }
             }
@@ -393,46 +280,29 @@ public class HomePage extends AppCompatActivity  implements OnMovieListener, OnT
 
     }
 
-  /*  private  void ConfigureSearchRecyclerView(){
-        searchMovieRecyclerViewAdapter =  new MovieRecyclerView(this);
-        searchMovies.setLayoutManager(new LinearLayoutManager(this));
-        searchMovies.setAdapter(searchMovieRecyclerViewAdapter);
 
-    }*/
-
-    public void  searchMovieApi(String query, int pageNumber){
-        movieViewModel.searchMovieApi(query,pageNumber);
+    public void searchMovieApi(String query, int pageNumber) {      //search keyword
+        movieViewModel.searchMovieApi(query, pageNumber);
     }
 
-    public void  searchTrendingMovieApi(int pageNumber){
+    public void searchTrendingMovieApi(int pageNumber) {     //search trending movies
         movieViewModel.searchTrendingMovieApi(pageNumber);
     }
 
-    public void  searchNowPlayingMovieApi(int pageNumber){
+    public void searchNowPlayingMovieApi(int pageNumber) {    //search now playing movies
         movieViewModel.searchNowPlayingMovieApi(pageNumber);
     }
 
-    public void  searchMovieNextPageApi(){
-        movieViewModel.searchMovieNextPageApi();
-    }
 
-    public void  searchTrendingMovieNextPageApi(){
-        movieViewModel.searchTrendingMovieNextPageApi();
-    }
-
-    public void  searchNowPlayingMovieNextPageApi(){
-        movieViewModel.searchNowPlayingMovieNextPageApi();
-    }
-
-    private void ObserveAnyChange() {
+    private void ObserveAnyChange() {        // observing changes on search movie query response
 
         movieViewModel.getMovies().observe(this, new Observer<List<Movie>>() {
             @Override
             public void onChanged(List<Movie> movies) {
-                if(movies != null){
-                    nowPlayingMovieRecyclerViewAdapter.setmMovies(movies);
-                    for(Movie movie : movies){
-                        Log.v("tag" , "onChanged : " + movie.getOriginal_title());
+                if (movies != null) {
+                    nowPlayingMovieRecyclerViewAdapter.setmMovies(movies); //putting in recycler view
+                    for (Movie movie : movies) {
+                        Log.v("tag", "onChanged : " + movie.getOriginal_title());
                     }
                 }
             }
@@ -440,78 +310,55 @@ public class HomePage extends AppCompatActivity  implements OnMovieListener, OnT
 
     }
 
-    private void ObserveAnyChangeTrending() {
+    private void ObserveAnyChangeTrending() { // observing changes on trending movie query response
 
         movieViewModel.getTrendingMovies().observe(this, new Observer<List<Movie>>() {
             @Override
             public void onChanged(List<Movie> movies) {
-                if(movies != null){
-                   trendingMovieRecyclerViewAdapter.setmMovies(movies);
-                    for(Movie movie : movies){
-                        Log.v("trending" , "onChanged : " + movie.getOriginal_title());
+                if (movies != null) {
+                    trendingMovieRecyclerViewAdapter.setmMovies(movies);  //putting in recycler view
+                    for (Movie movie : movies) {
+                        Log.v("trending", "onChanged : " + movie.getOriginal_title());
                     }
 
                 }
             }
         });
     }
-    private void ObserveAnyChangeNowPlaying() {
+
+    private void ObserveAnyChangeNowPlaying() { // observing changes on now playing movie query response
 
         movieViewModel.getPlayingNowMovies().observe(this, new Observer<List<Movie>>() {
             @Override
             public void onChanged(List<Movie> movies) {
-                nowPlayingMovieRecyclerViewAdapter.setmMovies(movies);
-                if(movies != null){
-                    for(Movie movie : movies){
-                        Log.v("nowpl" , "onChanged : " + movie.getOriginal_title());
+                nowPlayingMovieRecyclerViewAdapter.setmMovies(movies); //putting in recycler view
+                if (movies != null) {
+                    for (Movie movie : movies) {
+                        Log.v("nowpl", "onChanged : " + movie.getOriginal_title());
                     }
                 }
             }
         });
 
     }
-  /*  private void getRetrofitResponse(){
-        MovieApi movieApi = Service.getMovieApi();
-        Call<MovieSearchResponse> responseCall = movieApi
-                .searchMovie(Constants.API_KEY,"fast",1);
-
-        responseCall.enqueue(new Callback<MovieSearchResponse>() {
-            @Override
-            public void onResponse(Call<MovieSearchResponse> call, Response<MovieSearchResponse> response) {
-                if(response.code() ==200 ){
-                    Log.v("rohit", "Api response"+response.body().toString());
-                    List<Movie> movies = new ArrayList<>(response.body().getMovie());
-                    for(Movie movie : movies){
-                        Log.v("rohit", "title : " + movie.getOriginal_title());
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<MovieSearchResponse> call, Throwable t) {
-
-            }
-        });
-
-    }*/
 
 
     @Override
-    public void onMovieClick(int position) {
-        //movieViewModel.insert(nowPlayingMovieRecyclerViewAdapter.getSelectedMovie(position));
-        Log.v("rohit","movie id : " + nowPlayingMovieRecyclerViewAdapter.getSelectedMovie(position).getMovie_id());
-            Intent intent =  new Intent(this,MovieDetails.class);
-            intent.putExtra("movie",nowPlayingMovieRecyclerViewAdapter.getSelectedMovie(position));
-            startActivity(intent);
+    public void onMovieClick(int position) {        // implmentation of on click on now playing movie, will create new activity with details of that movie
+
+        Log.v("rohit", "movie id : " + nowPlayingMovieRecyclerViewAdapter.getSelectedMovie(position).getMovie_id());
+        Intent intent = new Intent(this, MovieDetails.class);
+        intent.putExtra("movie", nowPlayingMovieRecyclerViewAdapter.getSelectedMovie(position)); // putting extra details for the next activity
+        startActivity(intent);
 
     }
 
     @Override
-    public void ontrendingMovieClick(int position) {
-      // movieViewModel.delete(nowPlayingMovieRecyclerViewAdapter.getSelectedMovie(position));
-        Log.v("rohit","movie id : " + trendingMovieRecyclerViewAdapter.getSelectedMovie(position).getMovie_id());
-        Intent intent =  new Intent(this,MovieDetails.class);
-        intent.putExtra("movie",trendingMovieRecyclerViewAdapter.getSelectedMovie(position));
+    public void ontrendingMovieClick(int position) {    // implmentation of on click on trending movie, will create new activity with details of that movie
+
+        Log.v("rohit", "movie id : " + trendingMovieRecyclerViewAdapter.getSelectedMovie(position).getMovie_id());
+        Intent intent = new Intent(this, MovieDetails.class);
+        intent.putExtra("movie", trendingMovieRecyclerViewAdapter.getSelectedMovie(position)); // putting extra details for the next activity
         startActivity(intent);
 
 

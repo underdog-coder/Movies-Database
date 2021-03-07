@@ -7,20 +7,20 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-//This class is for single movie request
+//This class is for response for  single movie request
 public class MovieSearchResponse {
 
 
-    @SerializedName("results")
+    @SerializedName("results")  // for gson to serialize json and get movie results
     @Expose
     private List<Movie> movie;
 
     public List<Movie> getMovie() {
         return movie;
-    }
+    }  // return list of movies from response
 
     @Override
-    public String toString() {
+    public String toString() {      //toString method
         return "MovieSearchResponse{" +
                 "movie=" + movie.toString() +
                 '}';

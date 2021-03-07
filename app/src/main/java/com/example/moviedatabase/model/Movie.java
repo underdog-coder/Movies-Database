@@ -8,10 +8,12 @@ import androidx.room.PrimaryKey;
 
 import com.google.gson.annotations.SerializedName;
 
-@Entity(tableName = "favourite_table")
-public class Movie implements Parcelable {
-   /* @PrimaryKey(autoGenerate = true)
-    private int key;*/
+
+/*this class represent Basic movie Item and its attributes, this class only has getters and setters and putting data in parcel*/
+
+@Entity(tableName = "favourite_table") // declareation for room
+public class Movie implements Parcelable {  // parcelabe for passing data easily
+
     @SerializedName("original_title")
     private String original_title;
     @SerializedName("overview")

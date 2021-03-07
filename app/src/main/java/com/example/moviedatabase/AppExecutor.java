@@ -9,14 +9,15 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+
+/*This is the executor class to execute task on background threads  such as api call and DB querying*/
 public class AppExecutor  {
 
-    private static  AppExecutor instance;
-    private final Executor mDiskIO = Executors.newSingleThreadExecutor();
+    private static  AppExecutor instance; // instance of executor
+    private final Executor mDiskIO = Executors.newSingleThreadExecutor();   //  for IO  on Disk
     private final Executor mMainThreadExecutor = new MainThreadExecutor();
 
-
-    public static  AppExecutor getInstance(){
+    public static  AppExecutor getInstance(){       // Singleton pattern implementation
         if(instance == null){
             instance = new AppExecutor();
         }
@@ -27,11 +28,11 @@ public class AppExecutor  {
 
     public ScheduledExecutorService networkIO(){
             return mNetworkIO;
-    }
+    } // for network calls
 
     public Executor diskIO(){
         return mDiskIO;
-    }
+    }  //for disk Io
 
     public Executor mainThread(){
         return mMainThreadExecutor;

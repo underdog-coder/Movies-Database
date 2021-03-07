@@ -8,37 +8,19 @@ import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import static com.example.moviedatabase.util.Constants.CONNECTION_TIMEOUT;
-import static com.example.moviedatabase.util.Constants.READ_TIMEOUT;
-import static com.example.moviedatabase.util.Constants.WRITE_TIMEOUT;
 
+/*This is the retrofit service calss , here we initialise retrofit object for fetching data from internet  */
 public class Service {
-
-    private static OkHttpClient client = new OkHttpClient.Builder()
-
-            // establish connection to server
-            .connectTimeout(CONNECTION_TIMEOUT, TimeUnit.SECONDS)
-
-            // time between each byte read from the server
-            .readTimeout(READ_TIMEOUT, TimeUnit.SECONDS)
-
-            // time between each byte sent to server
-            .writeTimeout(WRITE_TIMEOUT, TimeUnit.SECONDS)
-
-            .retryOnConnectionFailure(false)
-
-            .build();
-
-    private static Retrofit.Builder retrofitBuilder =
+    private static Retrofit.Builder retrofitBuilder =       // defining retrofit object
             new Retrofit.Builder()
                     .baseUrl(Constants.MOVIE_BASE_URL)
                     .addConverterFactory(GsonConverterFactory.create());
 
-    private static Retrofit retrofit = retrofitBuilder.build();
+    private static Retrofit retrofit = retrofitBuilder.build();  //building retrofit object
 
-    private static MovieApi movieApi = retrofit.create(MovieApi.class);
+    private static MovieApi movieApi = retrofit.create(MovieApi.class);  // creating instance of movieApi
 
     public static MovieApi getMovieApi(){
         return movieApi;
-    }
+    }    // returning instance of movieApi
 }

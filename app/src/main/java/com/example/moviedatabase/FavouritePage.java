@@ -20,6 +20,10 @@ import com.example.moviedatabase.viewModel.MovieViewModel;
 
 import java.util.List;
 
+
+
+/*This Activity show all your fav movies in a recycler view   and allows user to get their details and delete them from fav table */
+
 public class FavouritePage  extends AppCompatActivity implements OnMovieListener{
     private MovieRecyclerView favouriteMovieRecyclerViewAdapter;
     private MovieViewModel movieViewModel;
@@ -37,14 +41,14 @@ public class FavouritePage  extends AppCompatActivity implements OnMovieListener
 
         movieViewModel = new ViewModelProvider(this).get(MovieViewModel.class);
 
-        ConfigureRecyclerView();
-        ObserveAnyChange();
-        searchFavMovies();
+        ConfigureRecyclerView(); // configuring recycler view
+        ObserveAnyChange();  // observing any changes on the the favorite movies
+        searchFavMovies();  // to query DB for fav movies
 
     }
 
 
-    private  void ConfigureRecyclerView() {
+    private  void ConfigureRecyclerView() {   // configuring recycler view
 
         favouriteMovieRecyclerViewAdapter = new MovieRecyclerView(this);
         favouriteMovies.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -53,13 +57,13 @@ public class FavouritePage  extends AppCompatActivity implements OnMovieListener
     }
 
 
-    private void ObserveAnyChange() {
+    private void ObserveAnyChange() {  // observing any changes on the the favorite movies
 
         movieViewModel.getFav_movies().observe(this, new Observer<List<Movie>>() {
             @Override
             public void onChanged(List<Movie> movies) {
                 if(movies != null){
-                    favouriteMovieRecyclerViewAdapter.setmMovies(movies);
+                    favouriteMovieRecyclerViewAdapter.setmMovies(movies);   // putting movies in the recycler view
                     for(Movie movie : movies){
                         Log.v("tag" , "onChanged : " + movie.getOriginal_title());
                     }
@@ -71,10 +75,10 @@ public class FavouritePage  extends AppCompatActivity implements OnMovieListener
 
     public void  searchFavMovies(){
         movieViewModel.searchFavMovies();
-    }
+    }    // to query fav movies
 
     @Override
-    public void onMovieClick(int position) {
+    public void onMovieClick(int position) {    // To go to the movie details page
         Log.v("rohit","movie id : " + favouriteMovieRecyclerViewAdapter.getSelectedMovie(position).getMovie_id());
         Intent intent =  new Intent(this,MovieDetails.class);
         intent.putExtra("movie",favouriteMovieRecyclerViewAdapter.getSelectedMovie(position));

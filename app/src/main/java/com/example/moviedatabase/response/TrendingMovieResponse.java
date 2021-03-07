@@ -7,22 +7,22 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-//This class is for getting Trending movies (List of movies)
+//This class is for getting Trending movies (List of movies) as a response
 public class TrendingMovieResponse {
 
-    @SerializedName("total_results")
+    @SerializedName("total_results")   // for gson to serialize json and get total results
     @Expose()
     private int totalCount;
 
-    @SerializedName("results")
+    @SerializedName("results")  // for gson to serialize json and get movie results
     @Expose()
     private List<Movie> movies;
 
     public int getTotalCount() {
         return totalCount;
-    }
+    }  //  return count of movies from response
 
     public List<Movie> getMovies() {
         return movies;
-    }
+    }   // return list of movies from response
 }

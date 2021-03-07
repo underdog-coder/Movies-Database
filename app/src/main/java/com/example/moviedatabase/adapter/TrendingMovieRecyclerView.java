@@ -14,14 +14,16 @@ import com.example.moviedatabase.model.Movie;
 
 import java.util.List;
 
+
+/*recycler view adapter to store trending movie*/
 public class TrendingMovieRecyclerView extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
-    private List<Movie> mMovies;
-    private OnTrendingListener onMovieListener;
+    private List<Movie> mMovies;  // list of movies
+    private OnTrendingListener onMovieListener; // listener
     @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.movie_list_item,parent,false);
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {  //creating view holder
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.movie_list_item,parent,false); // inflating view
         return new TrendingMovieHolder(view,onMovieListener);
     }
 
@@ -31,13 +33,13 @@ public class TrendingMovieRecyclerView extends RecyclerView.Adapter<RecyclerView
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) { // putting data in view holder
         ((TrendingMovieHolder )holder).title.setText(mMovies.get(position).getOriginal_title());
         Glide.with(holder.itemView.getContext()).load("https://image.tmdb.org/t/p/w500/"+ mMovies.get(position).getPoster_path()).into(((TrendingMovieHolder)holder).movieImage);
     }
 
     @Override
-    public int getItemCount() {
+    public int getItemCount() { // getting count of list
 
         if(mMovies != null){
             Log.v("set movies" , "movie size : " + mMovies.size());
@@ -47,7 +49,7 @@ public class TrendingMovieRecyclerView extends RecyclerView.Adapter<RecyclerView
             return 0;
     }
 
-    public void setmMovies(List<Movie> mMovies) {
+    public void setmMovies(List<Movie> mMovies) { // setting movie in the list
         this.mMovies = (mMovies);
         notifyDataSetChanged();
         Log.v("set movies" , "movie size : " + mMovies.toString());
@@ -57,7 +59,7 @@ public class TrendingMovieRecyclerView extends RecyclerView.Adapter<RecyclerView
         this.onMovieListener = onMovieListener;
     }
 
-    public Movie getSelectedMovie(int position){
+    public Movie getSelectedMovie(int position){  // getting selected movie
         if(mMovies !=  null){
             if(mMovies.size() > 0){
                 return mMovies.get(position);

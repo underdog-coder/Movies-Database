@@ -9,12 +9,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.moviedatabase.R;
 
+/* declaration of viewholder and click listener*/
+
 public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
     TextView title;
     ImageView movieImage;
     OnMovieListener onMovieListener;
-    public MovieViewHolder(@NonNull View itemView, OnMovieListener onMovieListener) {
+    public MovieViewHolder(@NonNull View itemView, OnMovieListener onMovieListener) { // constructor for setting itemview
         super(itemView);
         this.onMovieListener = onMovieListener;
         title = itemView.findViewById(R.id.title);
@@ -25,5 +27,5 @@ public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnC
     @Override
     public void onClick(View v) {
             onMovieListener.onMovieClick(getAdapterPosition());
-    }
+    } // on click listener
 }
